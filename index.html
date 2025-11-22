@@ -1,0 +1,1840 @@
+                              Getsuga GAme
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ultimate Anime+Manhwa Card Tournament Game</title>
+<style>
+body { background:#181933; color:#f3f3f3; margin:0; font-family:sans-serif;}
+.container { max-width:1150px; margin:0 auto; padding:24px 10px 10px 40px; display:flex; gap:18px; }
+.main-panel { flex:1 1 730px; }
+.controls { margin-bottom:18px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+select, .btn { padding:10px 22px; font-size:1em; border-radius:7px; border:none; cursor:pointer; background:#7477ff; color:#fff; transition: background .3s;}
+select:hover, .btn:hover { background: #5a5dbf; }
+#teams { display:flex; flex-wrap:wrap; gap:22px; margin-bottom:16px; justify-content:flex-start;}
+.team-column { background:#24245A; border-radius:13px; max-width:320px; min-width:235px; padding:13px 9px;}
+.team-card { display:flex; flex-direction:column; min-width:193px; max-width:257px; border-radius:20px; background:linear-gradient(120deg,#222240 74%,#443fa8 100%); box-shadow:0 3px 18px #16162863, 0 0 2px #343369; margin-bottom:14px; padding:13px 11px 10px 11px; border:2.5px solid #5353c5; align-items:center; position:relative; word-break:break-word; animation: cardIn .7s cubic-bezier(.68,-0.55,.27,1.55);}
+@keyframes cardIn { 0% {opacity:0; transform:translateY(40px) scale(.95);} 70% {opacity:1; transform:translateY(-7px) scale(1.01);} 100% {opacity:1; transform:translateY(0) scale(1);} }
+.team-card.bounce { animation: cardAttackBounce 1.2s cubic-bezier(.5,.19,.71,1.1);}
+@keyframes cardAttackBounce { 0%{transform:scale(1);} 15%{transform:scale(1.08);} 35%{transform:translateY(-45px) scale(1.05);} 38%{filter:brightness(1.7);} 55%{transform:translateY(0) scale(1);filter:brightness(1);} 100%{transform:scale(1);} }
+.team-card.flash { animation: cardAttackFlash 1.1s cubic-bezier(.5,.19,.71,1.1);}
+@keyframes cardAttackFlash { 0%{background:#fff;} 18%{background:#ffe;} 100%{background:inherit;} }
+.team-card.slam { animation: cardSlamAnim 0.8s cubic-bezier(.3,1,.6,1);}
+@keyframes cardSlamAnim{0%{box-shadow:0 0 0 #e31;} 36%{box-shadow:0 0 90px #e85;} 90%{box-shadow:0 0 0 transparent;}}
+.mythic{ border-color:#ffea36; }
+.legendary{ border-color:violet; }
+.secret{ border-color:crimson; background:linear-gradient(120deg,#332140 30%,#e31060 140%,#fff 100%) !important;}
+.special{border-color:coral;}
+.support{border-color:#15e0a4;}
+.epic{border-color:#ff9100;}
+.rare{border-color:#05e4e4;}
+.uncommon{border-color:#64ff88;}
+.pic{ width:60px; height:61px; border-radius:13px; margin-bottom:7px; border:2px solid #303034; box-shadow:0 0 9px #251a48aa; background:#16163a; display:flex; justify-content:center; align-items:center; font-size:1.6em; color:#888; object-fit:cover;}
+.card-info{ width:94%; display:flex; flex-direction:row; justify-content:space-between; align-items:center;}
+.title-rarity{ display:flex; align-items:center; gap:7px;}
+.card-title{ font-weight:bold; font-size:1em;}
+.rarity-label{ padding:2px 13px; border-radius:13px; font-size:0.82em; font-weight:700; letter-spacing:1px; text-transform:uppercase; user-select: none; box-shadow: 0 0 10px #22223329;}
+.mythic .rarity-label{background:gold;color:#332a00;}
+.legendary .rarity-label{background:violet;color:#190053;}
+.secret .rarity-label{background:crimson;color:#fad7f6;}
+.special .rarity-label{background:coral;color:#330101;}
+.support .rarity-label{background:#37f9c1;color:#03493c;}
+.epic .rarity-label{background:#ff9100;color:#431600;}
+.rare .rarity-label{background:#05e4e4;color:#00315a;}
+.uncommon .rarity-label{background:#64ff88;color:#015d2d;}
+.right-info{ text-align:right; font-size:0.89em; user-select:none;}
+.right-info div{ margin: 3px 0;}
+.moves-list{ font-size:0.84em; list-style:none; margin-top:8px; display:flex; flex-wrap:wrap; gap:5px; opacity:0.83;}
+.moves-list li{ background:#4545a5; padding:3px 6px; border-radius:7px;}
+.moves-list li.passive { font-style: italic; background: #202040; color: #7cfff5; }
+.battle-log { width:94vw; max-width:670px; background:#191858; border-radius:8px; padding:11px; border:1px solid #284266; margin:15px 0; max-height:140px; overflow-y:auto; font-size:.97em; line-height:1.29em; font-family:"Courier New",monospace; white-space:pre-wrap;}
+.winner{ font-weight:bold; color:gold; font-size: 1.21em; margin-bottom:11px; text-align:center;}
+.creator-card { position:fixed;top:420px;right:22px;z-index:99;background:rgba(25,25,55,0.99);border-radius:12px;padding:14px 20px 17px 20px;box-shadow:0 0 10px #141420;border:2.5px solid #5353c5;min-width:160px;text-align:center;display:flex;flex-direction:column;gap:5px;font-size:1.02em;}
+#tournament-leaderboard { margin-top:24px; background:#17112f; border-radius:12px; padding:12px 9px; }
+#tournament-commentary{background:#282253;padding:11px 12px 18px 12px;border-radius:13px;margin:24px 0 0 0;min-height:32px;font-size:1.13em;color:#ffde93}
+.vfx { position: absolute; left: 84%; top: 43%; transform: translate(-50%, -50%); pointer-events: none; font-size: 2.13em; font-weight: bold; animation: fadeVFX 0.85s linear forwards; user-select: none;}
+.vfx-boost{ text-shadow: 0 0 35px #e2bd09, 0 0 90px #ff2161, 0 0 80px #fff6a2;}
+@keyframes fadeVFX { 0%{opacity:0;transform: translate(-50%,-50%)scale(0.92);} 50%{opacity:1;transform: translate(-50%,-50%)scale(1.32);} 100%{opacity:0;transform: translate(-50%,-50%)scale(1.07);}
+}
+.team-column.tournament-large { max-width: 480px; min-width: 390px; padding: 26px 20px; }
+.team-card.tournament-large { min-width: 280px; max-width: 360px; font-size: 1.22em; }
+
+.achievement-popup{
+  background: #202043ef;
+  color: #fffaae;
+  border-radius: 9px;
+  position: fixed;
+  left: 50vw;
+  top: 8vh;
+  transform: translate(-50%, 0);
+  z-index: 1000;
+  font-size: 1.18em;
+  font-weight: bold;
+  box-shadow: 0 7px 28px #15152891;
+  padding: 18px 30px;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+.achievement-list .achieved{ color:#cacfff;text-shadow:0 0 7px #7fffc8c9; }
+.achievement-list .locked{ color:#808090; opacity:0.6; }
+
+.collection-card {
+  display: inline-block;
+  width: 67px;
+  height: 84px;
+  margin: 3px;
+  border-radius: 10px;
+  background: #2d2e57;
+  border: 2px solid #5656bc; 
+  color: #dfedff;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  font-size: 0.94em;
+  cursor: pointer;
+  box-shadow:0 0 12px #17174499;
+  transition: transform 0.22s;
+}
+.collection-card.locked {
+  filter: grayscale(1) blur(1px) brightness(0.46);
+  color:#808093;
+  cursor: default;
+  border:2px dashed #5a5a90;
+}
+.collection-card .card-symbol {
+  font-size:2em;
+  margin-top:11px;
+}
+.collection-card .card-title {
+  margin-top:7px;
+  font-size:0.93em;
+  font-weight:bold;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.collection-card .card-rarity {
+  font-size:0.73em;
+  color:#feeeda;
+  margin-top: 2px;
+}
+.announcement-bar {
+  background: linear-gradient(90deg, #ffe57a 60%, #fff6d7 100%);
+  color: #232130;
+  padding: 14px 18px;
+  font-size: 1.18em;
+  font-weight: bold;
+  border-radius: 11px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 12px #fbe87e98;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+</style>
+</head>
+<body>
+  <div id="announcement-bar" class="announcement-bar">
+  <!-- Example announcement, you can change with JS -->
+  Welcome to Anime/Manhwa Card Tournament! New mythic cards have arrived — check your collection!
+</div>
+<div class="container">
+  <div class="main-panel">
+    <h1>Anime+Manhwa Card Tournament Game</h1>
+    <div class="controls">
+      <label>Tournament:</label>
+      <select id="tournamentMode">
+        <option value="">No (Classic Battle)</option>
+        <option value="solo">Solo (8 heroes, 1v1s)</option>
+        <option value="duo">Duo (8 pairs, 2v2s)</option>
+      </select>
+      <label for="modeSelect" style="margin-right:10px;">Classic Mode:</label>
+      <select id="modeSelect">
+        <option value="1v1">1v1</option>
+        <option value="2v2">2v2</option>
+        <option value="3v3">3v3</option>
+        <option value="4v4">4v4</option>
+        <option value="5v5">5v5</option>
+        <option value="1v1v1">1v1v1</option>
+        <option value="3v3v3">3v3v3</option>
+      </select>
+      <button class="btn" id="startBtn">Start</button>
+      <button class="btn" id="playAgainBtn" onclick="playAgain()">Play Again</button>
+    </div>
+    <div id="teams"></div>
+    <div class="battle-log" id="log"></div>
+    <div class="winner" id="winner"></div>
+    <div id="tournament-commentary"></div>
+  </div>
+  <div style="flex:0 0 200px;min-width:160px;margin-left:10px;">
+    <div id="leaderboard"></div>
+    <div id="tournament-leaderboard"></div>
+  </div>
+</div>
+<div class="creator-card">
+  <div class="head">Creator</div><div class="me">Comet Assistant</div>
+  <div class="head">Co-creator</div><div class="you">Sital king</div>
+</div>
+<div class="achievement-popup" id="achievement-popup" style="display:none;"></div>
+<div id="achievement-list" class="achievement-list" style="margin-top:33px;padding:13px 18px;border-radius:9px;background:#1e2340;color:#eafeff;max-width:250px;">
+  <div style="font-weight:bold;font-size:1.12em;color:#fffa97;margin-bottom:9px;">Achievements</div>
+  <ul id="achievements-ul" style="list-style:none;padding:0;margin:0;"></ul>
+</div>
+<div id="collection-panel" style="background:#23254a;border-radius:14px;padding:17px 17px 9px 17px;max-width:315px;color:#fff8e0;margin-top:28px;">
+  <div style="font-weight:bold;font-size:1.13em;margin-bottom:11px;color:#fffd7a;">Card Collection</div>
+  <div id="collection-list" style="min-height:40px;margin-bottom:3px;"></div>
+  <div style="font-size:0.97em;color:#aaf;">Progress: <span id="collection-progress"></span></div>
+</div>
+<select id="tournamentMode">
+  <option value="solo">Solo</option>
+  <option value="duo">Duo</option>
+  <option value="3v3">Trio (3v3)</option>
+  <option value="4v4">Quad (4v4)</option>
+  <option value="5v5">Quint (5v5)</option>
+  <option value="rankvsrank">Rank vs Rank</option>
+</select>
+<script>
+  //==========announcement============
+  function announce(msg) {
+  document.getElementById('announcement-bar').textContent = msg;
+}
+
+// Usage: Announce something new
+announce("New:Rimuru Temepest secret form added! Check your collection! which is in true dragon for with 7 skills" );
+
+// ============ FULL CARD DATA (ALL ANIME/MANHWA) ============
+const allCards = [
+  // SECRET CARDS
+// SECRET ANIME
+{
+  name: "Songoku",
+  display: "Son Goku Ultra Instinct: Mastered",
+  rarity: "secret",
+  moves: [
+    { name: "Accelerated God Kamehameha", power: 490, vfx: "", effect: "spark", desc: "Ultra-speed energy burst that obliterates defenses" },
+    { name: "Autonomous Ultra Dodge", power: 0, vfx: "", effect: "bounce", desc: "Dodges all attacks next turn (special power)" },
+    { name: "Celestial Dragon Fist", power: 525, vfx: "", effect: "slam", desc: "Punch with power of a dragon god" },
+    { name: "Limitless Spirit Pulse", power: 470, vfx: "", effect: "flash", desc: "Spirit blast heals self 30% HP" },
+    { name: "Final Form: Mastered Ultra Instinct", power: 600, vfx: "", effect: "flash", desc: "Absolute offense/defense, guaranteed crit, cannot be countered" },
+    { name: "Transcendent Ultra Instinct Barrage", power: 655, vfx: "", effect: "multi-flash", desc: "A flurry of unstoppable blows—it strikes 3 times, each attack is guaranteed crit and bypasses shields." },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "Divine Reflex: 35% chance to ignore ALL incoming damage" },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "Transcendent Warrior: Recovers 10% HP on every defeat of an enemy" }
+  ],
+  hp: 2200,
+  attack: 590
+},
+
+{
+name: "Rimuru Tempest",
+display: "Rimuru (Ultimate True Dragon God)",
+rarity: "secret",
+moves: [
+  { name: "Azathoth, Lord of Chaos", power: 850, vfx: "", effect: "omni-flash", desc: "Unleashes chaotic magic, deletes all enemy buffs, disables passives, and deals true damage to all enemies." },
+  { name: "Void God", power: 0, vfx: "", effect: "", desc: "Rimuru becomes immune to all skills and effects for one round and gains 180 shield." },
+  { name: "Rune Master", power: 730, vfx: "", effect: "multi-hit", desc: "Cast 5 different elemental runes, each dealing 110 damage and inflicting a random status effect." },
+  { name: "Infinity Storm", power: 700, vfx: "", effect: "storm", desc: "Deals triple damage next turn and heals Rimuru 270 HP; cannot be evaded or countered." },
+  { name: "Ultimate Predator", power: 0, vfx: "", effect: "", desc: "Copies and uses any enemy skill once per battle (activates automatically when attacked)." },
+  { name: "Stellar Domination", power: 660, vfx: "", effect: "flash", desc: "Crushes all enemy shields, deals extra 70 true damage to debuffed foes, and stuns one random enemy." },
+  { name: "PASSIVE: God Emperor", power: 0, vfx: "", desc: "Rimuru heals 120 HP every turn, cannot be one-hit KO'd except by another Secret, and gains 40 attack every time any enemy uses a skill." }
+],
+hp: 2600,
+attack: 755
+},
+
+
+ {
+  name: "Yorukami Eclipse",
+  display: "Yorukami Eclipse, Void Sovereign",
+  rarity: "secret",
+  moves: [
+    { name: "Abyssal Dawn", power: 635, vfx: "", effect: "spark", desc: "Shadow wave; 42% chance to miss next attack turn for each enemy." },
+    { name: "Umbral Paradox", power: 0, vfx: "", desc: "Swaps all active buffs/debuffs between teams (max 1 per)." },
+    { name: "Nightmare Rend", power: 550, vfx: "", effect: "flash", desc: "Deals unredirectable damage; silences all enemy passives briefly." },
+    { name: "Void Step", power: 0, vfx: "", effect: "stealth", desc: "Ignores all attacks & skills for a turn, counters any with 320." },
+    { name: "Oblivion Pulse", power: 420, vfx: "", desc: "Hits a foe and drains 100 HP to self, all allies gain 25 shield." },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "Immune to all debuffs; revives at 25% HP (auto once/match)." }
+  ],
+  hp: 1740,
+  attack: 400
+},
+  {name:"Han Daewi",display:"Han Daewi (God of High School)",rarity:"secret",moves:[
+    {name:"Mad Cyonic Smash",power:415,vfx:"💥",effect:"slam"},
+    {name:"Taekwondo Radian",power:400,vfx:"⚡️",effect:"spark"},
+    {name:"Borrowed Power: Water Dragon",power:428,vfx:"🐉"},
+    {name:"Re: God of Combat",power:465,vfx:"☄️",effect:"flash"},
+    {name:"All Attack Boost",power:0,vfx:"💫",desc:"Boost team attack +35%, 3 turns"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Counter-attack when hit"}
+  ],hp:1120,attack:245,revivedSelf:false,reviveCount:0},
+  // --- Add to ALLCARDS array in your JS ---
+
+// SECRET (MANHWA)
+{
+  name:"Jin Mori Monkey King",
+  display:"Jin Mori (Monkey King Final Form, GOH)",
+  rarity:"secret",
+  moves:[
+    {name:"Renewal Taekwondo: RE", power:490, vfx:"🐒", effect:"slam"},
+    {name:"Bodhisattva's Power", power:440, vfx:"🌌", effect:"flash"},
+    {name:"Yeoui Overdrive", power:510, vfx:"🔱", effect:"bounce"},
+    {name:"Nimbus Ride", power:435, vfx:"☁️"},
+    {name:"Final Form Awakening", power:550, vfx:"👑", effect:"flash", desc:"Unleash full Monkey King power"},
+    {name:"PASSIVE", power:0, vfx:"✨", desc:"Immortal God: Cannot be KO'd by status"}
+  ],
+  hp:1350,
+  attack:325
+},
+
+// SECRET (ANIME)
+{
+  name:"Ichigo Kurosaki Final",
+  display:"Ichigo Kurosaki (True Bankai/Hollow)",
+  rarity:"secret",
+  moves:[
+    {name:"Mugetsu: Final Getsuga", power:525, vfx:"🌑", effect:"flash"},
+    {name:"Hollow Rage", power:485, vfx:"👹", effect:"bounce"},
+    {name:"True Bankai", power:510, vfx:"⚔️", effect:"slam"},
+    {name:"Inner Vasto Lorde", power:480, vfx:"🦸"},
+    {name:"Final Form Unleashed", power:575, vfx:"☁️", effect:"flash", desc:"Ultimate transcendence, obliterates enemy"},
+    {name:"PASSIVE", power:0, vfx:"✨", desc:"Dual Soul: heals self every round"}
+  ],
+  hp:1600,
+  attack:320
+},
+{
+  name: "Madara Uchiha Final",
+  display: "Madara Uchiha (Sage of Six Paths)",
+  rarity: "secret",
+  moves: [
+    { name: "Limbo: Border Jail", power: 515, vfx: "👤", effect: "slam", desc: "Summon invisible clones for devastating attack" },
+    { name: "Moon's Eye Plan", power: 480, vfx: "🌑", desc: "Mind control: enemy skips turn" },
+    { name: "Rikudou Susanoo", power: 530, vfx: "💮", effect: "flash", desc: "Ultimate defense and attack in final form" },
+    { name: "Infinite Tsukuyomi", power: 590, vfx: "🌕", effect: "flash", desc: "Final form: trap all enemies in illusion, unblockable" },
+    { name: "PASSIVE", power: 0, vfx: "✨", desc: "Divine Regeneration: heals 15% HP each round" }
+  ],
+  hp: 1515,
+  attack: 345
+},
+{
+  name: "Elysia Divine Final",
+  display: "Elysia, Divine Ascendant (Final Form)",
+  rarity: "secret",
+  moves: [
+    { name: "Celestial Judgment", power: 600, vfx: "⚡✨", effect: "flash", desc: "Unstoppable ultimate strike hitting all enemies" },
+    { name: "Heavenly Barrier", power: 0, vfx: "🛡️", desc: "Grants total immunity for 2 turns" },
+    { name: "Divine Healing", power: 0, vfx: "💠", desc: "Restore 40% HP to all allies" },
+    { name: "PASSIVE", power: 0, vfx: "👑", desc: "Auto-Revive once per match with full health" }
+  ],
+  hp: 1600,
+  attack: 360
+},
+{
+  name: "Nova Zenith",
+  display: "Nova Zenith (Final Genesis)",
+  rarity: "secret",
+  moves: [
+    { name: "Stellar Cataclysm", power: 480, vfx: "🌌✨", effect: "explosion", desc: "Hits all enemies, inflicts 'Stunned' status for 1 turn." },
+    { name: "Dimensional Veil", power: 0, vfx: "🛡️", desc: "Remove all negative effects for your team, gives shield for 2 turns." },
+    { name: "Chrono Rebirth", power: 0, vfx: "🌀", desc: "Bring back 2 random fallen allies at 40% HP." },
+    { name: "PASSIVE", power: 0, vfx: "⏳", desc: "Last to fall, auto-revives self once per match at 80% HP." }
+  ],
+  hp: 1700,
+  attack: 385
+},
+{
+  name: "Sung Jinwoo",
+  display: "Sung Jinwoo, Shadow Monarch (Full Power)",
+  rarity: "secret",
+  moves: [
+    { name: "Monarch's Slash", power: 610, vfx: "", effect: "slash", desc: "Deals massive damage that ignores defenses, 30% chance to stun." },
+    { name: "Power of All Shadows", power: 510, vfx: "", effect: "multi-flash", desc: "Unleashes the full strength of all collected shadows, buffing team attack by 30% and dealing shadow damage to all enemies." },
+    { name: "Black Heart Resurrection", power: 0, vfx: "", desc: "Revive any defeated ally at full HP and grant +30 attack for two turns." },
+    { name: "Shadow Emperor's Command", power: 0, vfx: "", desc: "For 2 turns, enemy skills are blocked and their passives disabled." },
+    { name: "Tenebrous Dominion", power: 470, vfx: "", effect: "spark", desc: "Drains 40 HP from every enemy and heals all allies 40 HP." },
+    { name: "World Splitter", power: 680, vfx: "", effect: "slam", desc: "Ultimate strike, hits all enemies, bypasses shields and revives self at 250 HP if K.O'd." },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "All allies gain +15 lifesteal each turn; Sung Jinwoo auto-revives once per match at 33% HP (cannot be blocked)." }
+  ],
+  hp: 1900,
+  attack: 450
+},
+{
+  name: "Naruto Uzumaki",
+  display: "Naruto Uzumaki (Kurama-Chakra: Supreme Sage)",
+  rarity: "secret",
+  moves: [
+    { name: "Kurama Rasen Shuriken", power: 645, vfx: "", effect: "slash", desc: "Maximum power; hits all enemies, inflicts burn and disables shields this round." },
+    { name: "Six Paths Regeneration", power: 0, vfx: "", desc: "Fully heal self and all allies to max HP (once per match)." },
+    { name: "Bijuu Chain Impact", power: 575, vfx: "", effect: "slam", desc: "Unblockable combo; if K.O.’d, revives a random ally at 55% HP." },
+    { name: "Shadow Army Rush", power: 410, vfx: "", desc: "Summon 7 clones—each attacks a different enemy. Each hit 100." },
+    { name: "Final Fox King Mode", power: 710, vfx: "", effect: "flash", desc: "Full fusion; deals true damage, auto double turn, cannot be evaded or countered." },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "Ignores all debuffs; if team falls below 50% HP, every ally instantly restores 220." }
+  ],
+  hp: 2050,
+  attack: 455
+},
+
+
+// --- Add to ALLCARDS array in your JS ---
+// MYTHIC CARDS
+{
+name: "Rimuru Tempest",
+display: "Rimuru Tempest (demon lord)",
+rarity: "mythic", // Starts as mythic; only Final Form promotes to secret!
+moves: [
+  { name: "Gluttonous Abyss", power: 690, vfx: "", effect: "absorb", desc: "Absorbs all enemy buffs and shields, converting them into bonus damage and defense." },
+  { name: "Ultimate Tempest", power: 530, vfx: "", effect: "storm", desc: "Attacks all enemies with a 40% chance to freeze and lower their attack for 2 turns." },
+  { name: "Wisdom King's Judgment", power: 770, vfx: "", effect: "beam", desc: "Deals true damage and disables all enemy healing and passives for 1 round." },
+  { name: "Predator Genesis", power: 0, vfx: "", desc: "Copies the strongest enemy skill at the start of each round. This can only occur once per skill type." },
+  { 
+    name: "Final Form: Demon Lord Awakening", 
+    power: 940, 
+    vfx: "", 
+    effect: "flash", 
+    desc: "Activates when below 50% HP. Rimuru changes from mythic to secret rank, fully heals, gains +200 to all stats, and all moves deal triple damage for one turn. This can only be used once per battle." 
+  },
+  { name: "PASSIVE", power: 0, vfx: "", desc: "Lord's Authority: Grants complete immunity to debuffs and status effects. Rimuru cannot be defeated by a single hit unless attacked by another secret card." },
+  { name: "PASSIVE", power: 0, vfx: "", desc: "Infinite Evolution: After entering Final Form, all Rimuru abilities permanently gain 50% more power." }
+],
+hp: 2170,
+attack: 570
+},
+
+{
+  name: "Shiba Kaido",
+  display: "Kaido the Azure Calamity (Mythic Form)",
+  rarity: "mythic",
+  moves: [
+    { name: "Thunder Bagua: Cataclysm", power: 540, vfx: "", effect: "slam", desc: "Devastating thunder club. 50% chance to stun." },
+    { name: "Dragon Shift", power: 0, vfx: "", desc: "Transforms into dragon for 2 turns; gains +120 HP and +15% attack." },
+    { name: "Calamity Cyclone", power: 460, vfx: "", effect: "spark", desc: "Calls a tornado, damaging all foes and lowering their defense." },
+    { name: "Supreme King’s Aura", power: 0, vfx: "", desc: "Enemies lose 5% HP at start of each turn (cannot be healed that round)." },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "Never stunned for more than one turn." }
+  ],
+  hp: 1620,
+  attack: 390
+},
+
+{
+  name: "Crimson Guardian",
+  display: "Crimson Guardian (Unbreakable Will)",
+  rarity: "special",
+  moves: [
+    { name: "Red Bastion", power: 0, vfx: "🛡️🔥", desc: "Shields all allies for 2 turns, blocking all damage and debuffs." },
+    { name: "Guarding Flare", power: 190, vfx: "🔥", effect: "blast", desc: "Deal damage and lower enemy defense for 1 round." },
+    { name: "Radiant Rally", power: 0, vfx: "🔆", desc: "Allies gain 15% attack and recover 20% HP." },
+    { name: "PASSIVE", power: 0, vfx: "🩸", desc: "Crimson Guardian cannot be crit-hit; heals self 8% HP per round." }
+  ],
+  hp: 1160,
+  attack: 145
+},
+
+{
+  name: "Gear 5 Luffy",
+  display: "Gear 5 Monkey D. Luffy (One Piece)",
+  rarity: "mythic",
+  moves: [
+    { name: "Gomu Gomu no Bajrang Gun", power: 520, vfx: "🦧", effect: "slam", desc: "Massive gear-5 punch, shakes reality" },
+    { name: "Toon World Frenzy", power: 470, vfx: "🌈", effect: "flash", desc: "Reality-warp slapstick" },
+    { name: "Giant Drums of Liberation", power: 440, vfx: "🥁", effect: "bounce", desc: "Sun God Nika's rythm, boosts his spirits" },
+    { name: "Rubber Body Chaos", power: 480, vfx: "🎩", effect: "spark", desc: "Surreal rubber dodge, evades all attacks" },
+    { name: "Final Form: Sun God Nika", power: 575, vfx: "☀️👑", effect: "flash", desc: "Unleashes Nika's true joy, can't be stopped—hits all enemies" },
+    { name: "PASSIVE", power: 0, vfx: "✨", desc: "Joyful Freedom: Immune to debuffs, has random revival once per match" }
+  ],
+  hp: 1450,
+  attack: 320
+},
+
+  {
+  name: "Astraeus",
+  display: "Astraeus (Mythic Sovereign)",
+  rarity: "mythic",
+  moves: [
+    { name: "Meteor Barrage", power: 330, vfx: "☄️", effect: "multi-hit", desc: "Hits random enemies, ignores defense." },
+    { name: "Aurora Oath", power: 0, vfx: "🛡️✨", desc: "Team gains 20% attack and heal 25% HP." },
+    { name: "Gravity Well", power: 0, vfx: "🌌", desc: "Stuns the strongest enemy for 1 turn." },
+    { name: "PASSIVE", power: 0, vfx: "🌠", desc: "Any round team HP drops below 40%, automatically heals 18% HP to all." }
+  ],
+  hp: 1480,
+  attack: 355
+},
+
+ {
+  name: "Gojo Satoru (Full Power)",
+  display: "Gojo Satoru (Jujutsu Kaisen)",
+  rarity: "mythic",
+  moves: [
+    { name: "Maximum Hollow Purple", power: 400, vfx: "💥", effect: "flash", desc: "Unleashes his most devastating energy attack." },
+    { name: "Infinity", power: 270, vfx: "🔵", desc: "Defense is absolute, reduces damage greatly." },
+    { name: "Six Eyes", power: 280, vfx: "👁️", effect: "spark", desc: "Unrivaled perception for control and precision." },
+    { name: "Domain Expansion: Immeasurable Void", power: 380, vfx: "🌌", desc: "Traps foes in a world of pure knowledge." },
+    { name: "PASSIVE", power: 0, vfx: "✨", desc: "First incoming attack is blocked." },
+    { name: "PASSIVE", power: 0, vfx: "💫", desc: "Untouchable: 33% chance to completely avoid all moves each round." }
+  ],
+  hp: 1100,
+  attack: 265
+},
+  {name:"Kim Dokja",display:"Kim Dokja (Omniscient Reader)",rarity:"mythic",moves:[
+    {name:"Fourth Wall [Scenarios]",power:380,vfx:"🛡️"},
+    {name:"Omniscient Stealth",power:350,vfx:"🔍"},
+    {name:"Demon King Emergence",power:410,vfx:"👑",effect:"flash"},
+    {name:"Narrative Domination",power:385,vfx:"📖"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Story Immunity: Survives fatal blow once"}
+  ],hp:1200,attack:295},
+  {name:"Sung Jin-Woo",display:"Sung Jin-Woo (Solo Leveling)",rarity:"mythic",moves:[
+    {name:"Shadow Slash",power:360,vfx:"🖤",effect:"bounce"},
+    {name:"Monarch's Army",power:354,vfx:"👥"},
+    {name:"Domain of Monarch",power:343,vfx:"🌑"},
+    {name:"World Splitter",power:400,vfx:"🕸️",effect:"slam"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Respawn as Shadow once per match"}
+  ],hp:1100,attack:270},
+  {name:"Baam",display:"Baam (Tower of God)",rarity:"mythic",moves:[
+    {name:"Black March Wave",power:390,vfx:"🌊",effect:"bounce"},
+    {name:"Shinsu Black Hole",power:385,vfx:"⚫️"},
+    {name:"Thorn Explosion",power:420,vfx:"🌱",effect:"flash"},
+    {name:"Blue Oar",power:360,vfx:"💙"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Immune to status effects for 2 turns"}
+  ],hp:1180,attack:270},
+ {
+  name: "Maomao",
+  display: "Maomao (Apothecary Genius)",
+  rarity: "mythic",
+  moves: [
+    { name: "Alchemist's Trick", power: 340, vfx: "🧪", effect: "flash", desc: "Brew unpredictable effect that confuses enemy" },
+    { name: "Poison Mastery", power: 390, vfx: "☠️", effect: "spark", desc: "Deals lingering poison damage" },
+    { name: "Diagnose & Cure", power: 0, vfx: "💚", desc: "Removes all debuffs from team" },
+    { name: "Passive Insight", power: 0, vfx: "✨", desc: "Reveals enemy's next move, 40% chance to dodge attack" }
+  ],
+  hp: 1200,
+  attack: 235
+},
+
+{
+  name: "Thalor Shadow Sovereign",
+  display: "Thalor, Shadow Sovereign",
+  rarity: "mythic",
+  moves: [
+    { name: "Shadow Lance", power: 490, vfx: "🌑", effect: "slam", desc: "Piercing shadow strike with high damage" },
+    { name: "Veil of Darkness", power: 0, vfx: "🌫️", desc: "Evade all attacks next turn" },
+    { name: "Nightmare Grasp", power: 520, vfx: "👻", effect: "flash", desc: "Fear-inducing strike that lowers enemy attack" },
+    { name: "PASSIVE", power: 0, vfx: "🖤", desc: "Regenerates 12% HP each round" }
+  ],
+  hp: 1350,
+  attack: 320
+},
+
+
+  // LEGENDARY CARDS
+  {
+  name: "Ryuujin Tenshin",
+  display: "Ryuujin Tenshin, Celestial Blade",
+  rarity: "legendary",
+  moves: [
+    { name: "Starbreaker Edge", power: 475, vfx: "", effect: "slash", desc: "Ignores shields, deals double damage if target has buffs." },
+    { name: "Heaven’s Judgement", power: 0, vfx: "", desc: "Remove all buffs from enemies, adds 60 shield to all allies." },
+    { name: "Quickdraw Slash", power: 240, vfx: "", effect: "flash", desc: "Always attacks first; if it defeats, get a free follow-up attack." },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "Buffs last 1 turn longer on Ryuujin; heals 35 HP if shield is broken." }
+  ],
+  hp: 1050,
+  attack: 265
+},
+
+{
+  name: "Seraphina Lumina",
+  display: "Seraphina Lumina, Shining Valkyrie",
+  rarity: "legendary",
+  moves: [
+    { name: "Radiant Burst", power: 410, vfx: "", effect: "spark", desc: "Hits all enemies, deals +32 if user is last on team." },
+    { name: "Light Barrier", power: 0, vfx: "", desc: "Team gains immunity to debuffs and 50 speed next round." },
+    { name: "Valkyrie Charge", power: 310, vfx: "", effect: "slam", desc: "Attack stuns only mythic or secret foes for 1 turn." },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "Heals 26 HP each round automatically; immune to burn/poison." }
+  ],
+  hp: 985,
+  attack: 235
+},
+
+{
+  name: "Magnus Voltaire",
+  display: "Magnus Voltaire, Ether Fencer",
+  rarity: "legendary",
+  moves: [
+    { name: "Ether Surge", power: 395, vfx: "", effect: "flash", desc: "Pierces defense, targets random enemy, gains 15 attack for next turn." },
+    { name: "Quantum Parry", power: 0, vfx: "", desc: "Negate one skill that targets Magnus, then counter with 200 attack." },
+    { name: "Cerulean Rift", power: 275, vfx: "", effect: "spark", desc: "Hits two random foes, disables their passives for the next round." },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "Immune to fear; gains +30 shield when starting below 20% HP." }
+  ],
+  hp: 1000,
+  attack: 245
+},
+
+  {
+  name: "Escanor",
+  display: "Escanor, The One (Sunrise Incarnate)",
+  rarity: "legendary",
+  moves: [
+    { name: "Sunshine: Cruel Sun", power: 385, vfx: "", effect: "flame", desc: "Burning sphere, deals double damage if used first turn." },
+    { name: "Divine Blade", power: 320, vfx: "", effect: "flash", desc: "Sword attack always deals additional 40 blockable damage." },
+    { name: "Ultimate Pride", power: 410, vfx: "", desc: "Boosts all stats for self, -10% HP all enemies." },
+    { name: "Noon Manifestation", power: 0, vfx: "", desc: "Immune to all debuffs for 2 turns." },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "Attacks get +20% power during user’s final turn; can only be defeated at 0 HP." }
+  ],
+  hp: 1100,
+  attack: 235
+},
+
+  {name:"Gojo Satoru(Anime)",display:"Gojo Satoru (Jujutsu Kaisen)",rarity:"legendary",moves:[
+    {name:"Hollow Purple",power:299,vfx:"💥",effect:"flash"},
+    {name:"Infinity",power:250,vfx:"🔵"},
+    {name:"Six Eyes",power:280,vfx:"👁️",effect:"spark"},
+    {name:"Domain Expansion",power:320,vfx:"🌌"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"First incoming attack blocked"}
+  ],hp:880,attack:195},
+  {name:"Mori Jin",display:"Mori Jin (God of High School)",rarity:"legendary",moves:[
+    {name:"Renewal Taekwondo",power:275,vfx:"🥋",effect:"slam"},
+    {name:"Yeoui Expansion",power:295,vfx:"🔱",effect:"bounce"},
+    {name:"Blue Dragon Kick",power:285,vfx:"🐲"},
+    {name:"Buddha's Palm",power:310,vfx:"👐",effect:"flash"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Gains 10 attack each battle round"}
+  ],hp:920,attack:180},
+  {name:"Levi Ackerman",display:"Levi Ackerman (Attack on Titan)",rarity:"legendary",moves:[
+    {name:"Heavenly Slash",power:205,vfx:"🗡️",effect:"spark"},
+    {name:"Scout's Agility",power:152,vfx:"🏃"},
+    {name:"Omni-Directional Attack",power:170,vfx:"🌪️",effect:"bounce"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"First attack always crits"}
+  ],hp:620,attack:120},
+
+  // SPECIAL CARDS (with revive abilities/or just supportes with fighting ability)
+  {
+  name: "Crimson Guardian",
+  display: "Crimson Guardian (Unbreakable Will)",
+  rarity: "special",
+  moves: [
+    { name: "Red Bastion", power: 0, vfx: "🛡️🔥", desc: "Shields all allies for 2 turns, blocking all damage and debuffs." },
+    { name: "Guarding Flare", power: 190, vfx: "🔥", effect: "blast", desc: "Deal damage and lower enemy defense for 1 round." },
+    { name: "Radiant Rally", power: 0, vfx: "🔆", desc: "Allies gain 15% attack and recover 20% HP." },
+    { name: "PASSIVE", power: 0, vfx: "🩸", desc: "Crimson Guardian cannot be crit-hit; heals self 8% HP per round." }
+  ],
+  hp: 1160,
+  attack: 145
+},
+
+  {name:"Revival Master",display:"Revival Master",rarity:"special",moves:[
+    {name:"Self Revival",power:0,vfx:"💠",desc:"Once per game: Revive self at full HP"},
+    {name:"Team Revival",power:0,vfx:"💎",desc:"Revive two defeated teammates at half HP"},
+    {name:"Resilience Strike",power:295,vfx:"✨",effect:"flash"},
+    {name:"Guardian Shield",power:175,vfx:"🛡️"},
+    {name:"Divine Protection",power:220,vfx:"🌟",effect:"bounce"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Cannot be stunned or controlled"}
+  ],hp:1200,attack:185,revivedSelf:false,reviveCount:0},
+  {name:"Phoenix Healer",display:"Phoenix Healer",rarity:"special",moves:[
+    {name:"Phoenix Rebirth",power:0,vfx:"🔥",desc:"Self-revive once at 60% HP"},
+    {name:"Mass Revive",power:0,vfx:"🌟",desc:"Revive two allies at 50% HP"},
+    {name:"Healing Wave",power:170,vfx:"💧"},
+    {name:"Purifying Flame",power:195,vfx:"🔥",effect:"flash"},
+    {name:"Life Force",power:180,vfx:"💚"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Heals lowest-HP teammate each turn"}
+  ],hp:950,attack:160,revivedSelf:false,reviveCount:0},
+  {
+  name: "Celestial Healer",
+  display: "Celestial Healer (Light of Dawn)",
+  rarity: "special",
+  moves: [
+    { name: "Revive Light", power: 0, vfx: "✨", desc: "Revive one ally at 60% HP once per match" },
+    { name: "Radiant Shield", power: 0, vfx: "🛡️", desc: "Shield all allies for 1 turn" },
+    { name: "Solar Flare", power: 200, vfx: "☀️", effect: "flash" },
+    { name: "PASSIVE", power: 0, vfx: "💫", desc: "Heals all allies 8% HP each turn" }
+  ],
+  hp: 1180,
+  attack: 160,
+  revivedSelf: false,
+  reviveCount: 0
+},
+// shadow
+{
+  name: "Shadow Soldier",
+  display: "Shadow Soldier",
+  rarity: "shadow",
+  moves: [
+    { name: "Shadow Strike", power: 155, vfx: "🌑", effect: "slash" },
+    { name: "Haunt", power: 0, vfx: "👻", desc: "Reduces enemy defense for 1 round." }
+  ],
+  hp: 370,
+  attack: 61
+},
+{
+  name: "Shadow Marshal",
+  display: "Shadow Marshal",
+  rarity: "shadow",
+  moves: [
+    { name: "Marshal's Scythe", power: 210, vfx: "⚔️", effect: "slash" },
+    { name: "Shadow Command", power: 0, vfx: "👥", desc: "Increases ally shadow soldiers' attack this round." }
+  ],
+  hp: 520,
+  attack: 102
+},
+
+
+  // SUPPORT CARDS
+  {
+  name: "Mirai Blossom",
+  display: "Mirai Blossom (Hopeful Healer)",
+  rarity: "support",
+  moves: [
+    { name: "Healing Spring", power: 0, vfx: "🌸", desc: "Heals 42% HP to ally with lowest HP." },
+    { name: "Petal Screen", power: 0, vfx: "🌺", desc: "Team immune to debuffs for next turn." },
+    { name: "Rainbow Burst", power: 135, vfx: "🌈", effect: "spark", desc: "Damages all enemies, lowers their healing for 2 turns." },
+    { name: "PASSIVE", power: 0, vfx: "🌿", desc: "Team heals 6% HP every time Mirai Blossom uses any skill." }
+  ],
+  hp: 725,
+  attack: 88
+},
+
+  {name:"Igris",display:"Igris (Solo Leveling)",rarity:"support",moves:[
+    {name:"Knight's Support",power:0,vfx:"🛡️",desc:"Shield team for 2 turns"},
+    {name:"Sword Parry",power:130,vfx:"⚔️",effect:"spark"},
+    {name:"Loyalty Strike",power:145,vfx:"🗡️"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Blocks first attack per battle"}
+  ],hp:710,attack:97},
+  {name:"Recovery Witch",display:"Recovery Witch (Witch Hunter)",rarity:"support",moves:[
+    {name:"Potion Aura",power:0,vfx:"🧪",desc:"All teammates regenerate for 2 turns"},
+    {name:"Wide Area Heal",power:0,vfx:"💚",desc:"Restore 40% HP to all allies"},
+    {name:"Magic Missile",power:120,vfx:"✨",effect:"spark"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Immune to poison and curses"}
+  ],hp:760,attack:62},
+  {name:"Isabella",display:"Isabella (Promised Neverland)",rarity:"support",moves:[
+    {name:"Mother's Blessing",power:0,vfx:"🌸",desc:"All teammates gain +30% defense for 2 turns"},
+    {name:"Hidden Plan",power:0,vfx:"🦊",desc:"Next ally acts twice"},
+    {name:"Strategic Strike",power:110,vfx:"🎯"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"First time hit, takes no damage"}
+  ],hp:680,attack:68},
+  {name:"Kurapika",display:"Kurapika (Hunter x Hunter)",rarity:"support",moves:[
+    {name:"Chain Jail",power:0,vfx:"⛓️",desc:"Restrains strongest enemy for 1 turn"},
+    {name:"Eyes Aflame",power:190,vfx:"🔥",effect:"flash"},
+    {name:"Healing Chain",power:0,vfx:"💠",desc:"Heal an ally to full HP"},
+    {name:"Judgment Chain",power:165,vfx:"⚖️"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Immune to control effects"}
+  ],hp:700,attack:88},
+  {
+  name: "Wind Whisper",
+  display: "Wind Whisper (Silent Protector)",
+  rarity: "support",
+  moves: [
+    { name: "Gale Guard", power: 0, vfx: "🌬️", desc: "Reduce enemy attack by 25% for 2 turns" },
+    { name: "Healing Breeze", power: 0, vfx: "💨", desc: "Restore 35% HP to one ally" },
+    { name: "Swift Strike", power: 130, vfx: "🏹", effect: "spark" },
+    { name: "PASSIVE", power: 0, vfx: "✨", desc: "Immune to stun and silence" }
+  ],
+  hp: 720,
+  attack: 85
+},
+
+
+  // EPIC CARDS
+  {
+  name: "Sylvia Vortex",
+  display: "Sylvia Vortex, Gale Enchantress",
+  rarity: "epic",
+  moves: [
+    { name: "Whirling Tempest", power: 355, vfx: "", effect: "spin", desc: "Hits all enemies; 25% chance to reduce their attack by 20% for 2 turns." },
+    { name: "Aerial Ward", power: 0, vfx: "", desc: "Grants team-wide evasion (first attack dodged next round)." },
+    { name: "Sonic Shear", power: 245, vfx: "", effect: "slash", desc: "Always a critical hit. If team has less members, this hits twice." },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "Every skill used increases Sylvia’s speed by 5 (stacks until KO'd)." }
+  ],
+  hp: 930,
+  attack: 210
+},
+
+{
+  name: "Dainan Forgeclaw",
+  display: "Dainan Forgeclaw, Ironscale Guardian",
+  rarity: "epic",
+  moves: [
+    { name: "Iron Wreck", power: 390, vfx: "", effect: "slam", desc: "Pierces defense, deals +40 if user has more HP than target." },
+    { name: "Titan Shell", power: 0, vfx: "", desc: "Direct all single-target enemy skills to Dainan this turn." },
+    { name: "Fiery Roar", power: 295, vfx: "", effect: "flame", desc: "Attack all stunned or debuffed enemies and lower their defense by 15%." },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "Reduces all incoming non-ultimate damage by 22." }
+  ],
+  hp: 1100,
+  attack: 185
+},
+
+{
+  name: "Lucien Frostveil",
+  display: "Lucien Frostveil, Crystal Mirage",
+  rarity: "epic",
+  moves: [
+    { name: "Hailstorm Strike", power: 335, vfx: "", effect: "spark", desc: "May freeze a random enemy for next turn (40% chance)." },
+    { name: "Reflective Glacier", power: 0, vfx: "", desc: "Next negative effect or damage is reflected back with double force." },
+    { name: "Winter Mirage", power: 250, vfx: "", effect: "stealth", desc: "Lucien cannot be targeted and gains +60 shield for one round." },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "Immune to freeze and silence; heals 20 HP if Lucien dodges an attack." }
+  ],
+  hp: 970,
+  attack: 205
+},
+
+  {
+  name: "Akira Raijin",
+  display: "Akira Raijin, Tempest Challenger",
+  rarity: "epic",
+  moves: [
+    { name: "Heaven-Sundering Bolt", power: 515, vfx: "", effect: "spark", desc: "Massive lightning attack; 40% chance to paralyze all enemies for 1 turn." },
+    { name: "Tempest Ward", power: 0, vfx: "", desc: "Grants immunity to debuffs and absorbs the next attack as HP." },
+    { name: "Volt Crush Counter", power: 0, vfx: "", desc: "If attacked, 46% chance to nullify and deal 250 back (triggers twice per match max)." },
+    { name: "Storm Rebirth", power: 0, vfx: "", desc: "Revives self at 45% HP once per match; triggers chain skill if any ally revived this round." },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "Immune to all status effects; +15% damage for each living ally." }
+  ],
+  hp: 1350,
+  attack: 280
+},
+
+
+  {
+  name: "Violet Phantom",
+  display: "Violet Phantom (Spectral Assassin)",
+  rarity: "epic",
+  moves: [
+    { name: "Spectral Blade", power: 310, vfx: "🌒", effect: "stealth", desc: "Always critical. Ignores shields if target HP < 40%." },
+    { name: "Ghost Step", power: 0, vfx: "👣", desc: "Dodges all single-target moves for next turn." },
+    { name: "Fade Burst", power: 180, vfx: "🟣", effect: "bounce", desc: "Attack two enemies, each hit reduces speed." },
+    { name: "PASSIVE", power: 0, vfx: "🕸️", desc: "Recovers 6% HP every time attacked, up to twice per round." }
+  ],
+  hp: 800,
+  attack: 175
+},
+
+  {name:"Naruto Uzumaki",display:"Naruto Uzumaki (Naruto)",rarity:"epic",moves:[
+    {name:"Sage Rasengan",power:185,vfx:"🌀",effect:"spark"},
+    {name:"Nine-Tails Chakra Mode",power:200,vfx:"🦊",effect:"flash"},
+    {name:"Shadow Clone Jutsu",power:165,vfx:"👥"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Heals 100 HP when an ally is defeated"}
+  ],hp:820,attack:176},
+  {name:"Izuku Midoriya",display:"Izuku Midoriya (My Hero Academia)",rarity:"epic",moves:[
+    {name:"One For All 100%",power:199,vfx:"💥",effect:"flash"},
+    {name:"Detroit Smash",power:182,vfx:"🗯️",effect:"slam"},
+    {name:"Full Cowling",power:170,vfx:"⚡️",effect:"spark"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Gains 10 attack each turn"}
+  ],hp:890,attack:195},
+  {name:"Tanjiro Kamado",display:"Tanjiro Kamado (Demon Slayer)",rarity:"epic",moves:[
+    {name:"Water Breathing: First Form",power:155,vfx:"💧"},
+    {name:"Hinokami Kagura",power:175,vfx:"🔥",effect:"flash"},
+    {name:"Sun Breathing",power:190,vfx:"☀️",effect:"bounce"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Auto-cures poison and curses"}
+  ],hp:750,attack:145},
+  {name:"Kenpachi Zaraki",display:"Kenpachi Zaraki (Bleach)",rarity:"epic",moves:[
+    {name:"Nozarashi Slash",power:210,vfx:"⚔️",effect:"slam"},
+    {name:"Berserk Mode",power:180,vfx:"🗡️",effect:"bounce"},
+    {name:"Reiatsu Burst",power:195,vfx:"💀",effect:"flash"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Deals 50% more damage when below half HP"}
+  ],hp:930,attack:199},
+  {
+  name: "Firestorm",
+  display: "Firestorm (Flame Empress)",
+  rarity: "epic",
+  moves: [
+    { name: "Blazing Orb", power: 250, vfx: "🔥", effect: "flash" },
+    { name: "Inferno Wave", power: 220, vfx: "🌊", effect: "bounce" },
+    { name: "Flame Guard", power: 0, vfx: "🛡️", desc: "Absorb 30% damage for 2 turns" },
+    { name: "PASSIVE", power: 0, vfx: "🔥", desc: "Deals burn damage over time" }
+  ],
+  hp: 870,
+  attack: 185
+},
+  // RARE CARDS
+ {
+  name: "Yume Kurogane",
+  display: "Yume Kurogane, Dreamblade Tactician",
+  rarity: "rare",
+  moves: [
+    { name: "Mirage Edge", power: 360, vfx: "", effect: "flash", desc: "Deals heavy damage and swaps one enemy’s highest stat with their lowest (next round only)." },
+    { name: "Twin Trap", power: 0, vfx: "", desc: "Stuns an enemy and reflects their next skill to a random foe." },
+    { name: "Silent Shift", power: 0, vfx: "", effect: "stealth", desc: "Cannot be targeted next round; attacks as a critical if not interrupted." },
+    { name: "Dream Push", power: 205, vfx: "", desc: "Lowers all enemies’ attack by 15% for 2 turns, buffs team speed by 18." },
+    { name: "PASSIVE", power: 0, vfx: "", desc: "Immune to confusion/poison/debuffs; deal extra 25 if user is outnumbered." }
+  ],
+  hp: 1020,
+  attack: 215
+},
+
+
+  {
+  name: "Thunder Lynx",
+  display: "Thunder Lynx (Lightning Runner)",
+  rarity: "rare",
+  moves: [
+    { name: "Spark Frenzy", power: 170, vfx: "⚡", effect: "multi-hit", desc: "Hits 2 random enemies, 35% chance to 'Shock' (miss next turn)." },
+    { name: "Charge Guard", power: 0, vfx: "🦊", desc: "Gains 50% dodge chance for 2 rounds, removes any slow." },
+    { name: "Lightning Dash", power: 210, vfx: "⚡💨", effect: "speed", desc: "Hits fastest enemy, reduces their attack for 1 round." },
+    { name: "PASSIVE", power: 0, vfx: "⚡", desc: "Acts first every round, immunity to stun." }
+  ],
+  hp: 640,
+  attack: 122
+},
+
+  {name:"Zenitsu Agatsuma",display:"Zenitsu Agatsuma (Demon Slayer)",rarity:"rare",moves:[
+    {name:"Thunderclap and Flash",power:127,vfx:"⚡",effect:"spark"},
+    {name:"Six Fold",power:145,vfx:"⚡⚡",effect:"bounce"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"May dodge attacks randomly"}
+  ],hp:700,attack:131},
+  {name:"Senku Ishigami",display:"Senku Ishigami (Dr. Stone)",rarity:"rare",moves:[
+    {name:"Science Explosion",power:115,vfx:"🧪",effect:"flash"},
+    {name:"Chemical Reaction",power:125,vfx:"⚗️"},
+    {name:"Logic Bomb",power:135,vfx:"💡",effect:"spark"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Immunity to all status effects"}
+  ],hp:650,attack:108},
+  {name:"Hinata Shoyo",display:"Hinata Shoyo (Haikyuu)",rarity:"rare",moves:[
+    {name:"Quick Attack",power:110,vfx:"🏐",effect:"bounce"},
+    {name:"Decoy Rush",power:95,vfx:"⚡️"},
+    {name:"Monster Quick",power:125,vfx:"👹",effect:"spark"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Gains speed boost after each attack"}
+  ],hp:680,attack:115},
+  {name:"Edward Elric",display:"Edward Elric (Fullmetal Alchemist)",rarity:"rare",moves:[
+    {name:"Alchemy Transmutation",power:140,vfx:"🔩",effect:"flash"},
+    {name:"Automail Punch",power:125,vfx:"⚙️",effect:"slam"},
+    {name:"Earth Spike",power:130,vfx:"🪨"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Heals slightly each turn"}
+  ],hp:720,attack:128},
+  {
+  name: "Shadow Fang",
+  display: "Shadow Fang (Stealth Assassin)",
+  rarity: "rare",
+  moves: [
+    { name: "Silent Slash", power: 150, vfx: "🌑", effect: "slam" },
+    { name: "Smoke Bomb", power: 0, vfx: "💨", desc: "Evade all damage next turn" },
+    { name: "Backstab", power: 180, vfx: "🗡️", effect: "flash" },
+    { name: "PASSIVE", power: 0, vfx: "👤", desc: "Increased critical chance by 15%" }
+  ],
+  hp: 690,
+  attack: 135
+},
+
+
+  // UNCOMMON CARDS
+  {name:"Monkey D. Luffy",display:"Monkey D. Luffy (One Piece)",rarity:"uncommon",moves:[
+    {name:"Gum-Gum Pistol",power:105,vfx:"👊",effect:"bounce"},
+    {name:"Gear Second",power:120,vfx:"💨",effect:"spark"},
+    {name:"Gomu Gomu no Bazooka",power:115,vfx:"💥"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Rubber body: immune to blunt damage"}
+  ],hp:650,attack:112},
+  {name:"Sasuke Uchiha",display:"Sasuke Uchiha (Naruto)",rarity:"uncommon",moves:[
+    {name:"Chidori",power:120,vfx:"⚡",effect:"spark"},
+    {name:"Fireball Jutsu",power:108,vfx:"🔥"},
+    {name:"Sharingan",power:95,vfx:"👁️",effect:"flash"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Counter-attack chance on incoming damage"}
+  ],hp:620,attack:118},
+  {name:"Ichigo Kurosaki",display:"Ichigo Kurosaki (Bleach)",rarity:"uncommon",moves:[
+    {name:"Getsuga Tensho",power:125,vfx:"🌙",effect:"bounce"},
+    {name:"Bankai",power:140,vfx:"⚔️",effect:"flash"},
+    {name:"Hollow Mask",power:130,vfx:"👹"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Soul Reaper powers: extra damage vs spirits"}
+  ],hp:680,attack:122},
+  {name:"Asta",display:"Asta (Black Clover)",rarity:"uncommon",moves:[
+    {name:"Anti-Magic Slash",power:118,vfx:"⚔️",effect:"slam"},
+    {name:"Black Divider",power:125,vfx:"🖤",effect:"bounce"},
+    {name:"Demon Dweller",power:112,vfx:"😈"},
+    {name:"PASSIVE",power:0,vfx:"✨",desc:"Anti-Magic: resistant to magic attacks"}
+  ],hp:640,attack:115}
+];
+
+// ============ GAME VARIABLES ============
+let leaderData = {}, tournamentLeaders = [];
+let teams = [], teamsHp = [], activeIdx = [], mode = "1v1";
+let tournamentBracket = [], tournamentRound = 0, tournamentActive = false;
+let ultActivated = [], regenTurns = [];
+
+const teamsContainer = document.getElementById("teams"),
+      logDiv = document.getElementById("log"),
+      winnerDiv = document.getElementById("winner"),
+      playAgainBtn = document.getElementById("playAgainBtn"),
+      startBtn = document.getElementById("startBtn"),
+      modeSelect = document.getElementById("modeSelect"),
+      leaderboardDiv = document.getElementById("leaderboard"),
+      tournamentMode = document.getElementById("tournamentMode"),
+      tournamentLeaderboard = document.getElementById("tournament-leaderboard"),
+      tournamentCommentary = document.getElementById("tournament-commentary");
+
+// ============ UTILITY FUNCTIONS ============
+function capitalize(w) { return w[0].toUpperCase() + w.slice(1); }
+function shuffle(arr) {
+  for(let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ============ MAIN GAME CONTROLS ============
+startBtn.onclick = () => {
+  winnerDiv.textContent = "";
+  logDiv.textContent = "";
+  if(tournamentCommentary) tournamentCommentary.textContent = "";
+  
+  const tournament = tournamentMode.value;
+  if (tournament) {
+    startTournament(tournament);
+  } else {
+    mode = modeSelect.value;
+    setupTeams();
+    renderTeams();
+    teamsHp = teams.map(team => team.map(card => card.hp));
+    activeIdx = teams.map(() => 0);
+    setTimeout(battleLoop, 600);
+  }
+};
+
+playAgainBtn.onclick = () => {
+  winnerDiv.textContent = "";
+  logDiv.textContent = "";
+  if(tournamentCommentary) tournamentCommentary.textContent = "";
+  
+  const tournament = tournamentMode.value;
+  if (tournament) {
+    startTournament(tournament);
+  } else {
+    setupTeams();
+    renderTeams();
+    teamsHp = teams.map(team => team.map(card => card.hp));
+    activeIdx = teams.map(() => 0);
+    setTimeout(battleLoop, 600);
+  }
+};
+
+// ============ TOURNAMENT SYSTEM ============
+function startTournament(type) {
+  tournamentActive = true;
+  tournamentRound = 1;
+  tournamentBracket = [];
+
+  if (type === "solo") {
+    let shuffled = shuffle([...allCards]);
+    tournamentBracket = shuffled.slice(0, 16).map(card => ({
+      name: card.display || card.name,
+      card: JSON.parse(JSON.stringify(card))
+    }));
+    commentary("SOLO TOURNAMENT BEGINS! 16 heroes enter!");
+  } else if (type === "duo") {
+    let shuffled = shuffle([...allCards]);
+    for (let i = 0; i < 40; i += 2) {
+      tournamentBracket.push({
+        name: `Team ${Math.floor(i / 2) + 1}`,
+        cards: [
+          JSON.parse(JSON.stringify(shuffled[i])),
+          JSON.parse(JSON.stringify(shuffled[i + 1]))
+        ]
+      });
+    }
+    commentary("DUO TOURNAMENT BEGINS! 20 teams battle!");
+  } else if (type === "3v3") {
+    let shuffled = shuffle([...allCards]);
+    for (let i = 0; i < 48; i += 3) {
+      tournamentBracket.push({
+        name: `Team ${Math.floor(i / 3) + 1}`,
+        cards: [
+          JSON.parse(JSON.stringify(shuffled[i])),
+          JSON.parse(JSON.stringify(shuffled[i + 1])),
+          JSON.parse(JSON.stringify(shuffled[i + 2]))
+        ]
+      });
+    }
+    commentary("3v3 TOURNAMENT BEGINS! 16 teams!");
+  } else if (type === "4v4") {
+    let shuffled = shuffle([...allCards]);
+    for (let i = 0; i < 64; i += 4) {
+      tournamentBracket.push({
+        name: `Team ${Math.floor(i / 4) + 1}`,
+        cards: [
+          JSON.parse(JSON.stringify(shuffled[i])),
+          JSON.parse(JSON.stringify(shuffled[i + 1])),
+          JSON.parse(JSON.stringify(shuffled[i + 2])),
+          JSON.parse(JSON.stringify(shuffled[i + 3]))
+        ]
+      });
+    }
+    commentary("4v4 TOURNAMENT BEGINS! 16 teams!");
+  } else if (type === "5v5") {
+    let shuffled = shuffle([...allCards]);
+    for (let i = 0; i < 80; i += 5) {
+      tournamentBracket.push({
+        name: `Team ${Math.floor(i / 5) + 1}`,
+        cards: [
+          JSON.parse(JSON.stringify(shuffled[i])),
+          JSON.parse(JSON.stringify(shuffled[i + 1])),
+          JSON.parse(JSON.stringify(shuffled[i + 2])),
+          JSON.parse(JSON.stringify(shuffled[i + 3])),
+          JSON.parse(JSON.stringify(shuffled[i + 4]))
+        ]
+      });
+    }
+    commentary("5v5 TOURNAMENT BEGINS! 16 teams!");
+  } else if (type === "rankvsrank") {
+    let ranks = ["secret", "mythic", "legendary", "epic", "rare", "uncommon", "support", "special","shadow"];
+    ranks.forEach(rank => {
+      let pool = shuffle(allCards.filter(card => card.rarity === rank));
+      for (let i = 0; i < pool.length; i++) {
+        tournamentBracket.push({
+          name: `${rank.charAt(0).toUpperCase() + rank.slice(1)} Team ${i + 1}`,
+          cards: [JSON.parse(JSON.stringify(pool[i]))]
+        });
+      }
+    });
+    commentary("RANK VS RANK TOURNAMENT BEGINS! Teams face off by rank!");
+  }
+
+  setTimeout(() => runTournamentRound(type), 1000);
+}
+
+
+
+async function runTournamentRound(type) {
+  const roundNames = ["", "Quarter-Finals", "Semi-Finals", "Finals"];
+  const roundName = tournamentRound <= 3 ? roundNames[tournamentRound] : "Finals";
+  
+  commentary(`\n🔥 ${roundName.toUpperCase()} - Round ${tournamentRound}!`);
+  
+  let winners = [];
+  
+  for(let i = 0; i < tournamentBracket.length; i += 2) {
+    if (i + 1 >= tournamentBracket.length) break;
+    
+    let participant1 = tournamentBracket[i];
+    let participant2 = tournamentBracket[i + 1];
+    
+    commentary(`\n⚔️  ${participant1.name} VS ${participant2.name}`);
+    
+    if (type === "solo") {
+      teams = [[participant1.card], [participant2.card]];
+    } else {
+      teams = [participant1.cards, participant2.cards];
+    }
+    
+    renderTeams();
+    teamsHp = teams.map(team => team.map(card => card.hp));
+    activeIdx = teams.map(() => 0);
+    
+    await battleLoop();
+    
+    const totals = teamsHp.map(teamHp => teamHp.reduce((sum, hp) => sum + Math.max(hp, 0), 0));
+    const maxHP = Math.max(...totals);
+    const winnerIdx = totals.findIndex(total => total === maxHP);
+    
+    if (winnerIdx === 0) {
+      winners.push(participant1);
+      commentary(`🎉 ${participant1.name} advances to the next round!`);
+    } else {
+      winners.push(participant2);
+      commentary(`🎉 ${participant2.name} advances to the next round!`);
+    }
+    
+    await delay(1500);
+  }
+  
+  tournamentBracket = winners;
+  
+  if (tournamentBracket.length === 1) {
+    const champion = tournamentBracket[0];
+    commentary(`\n🏆 TOURNAMENT CHAMPION: ${champion.name}! 🏆`);
+    winnerDiv.textContent = `🏆 Tournament Champion: ${champion.name}! 🏆`;
+    
+    tournamentLeaders.unshift({
+      name: champion.name,
+      type: type,
+      date: new Date().toLocaleDateString()
+    });
+    
+    updateTournamentLeaderboard();
+    tournamentActive = false;
+    
+  } else if (tournamentBracket.length > 1) {
+    tournamentRound++;
+    setTimeout(() => runTournamentRound(type), 2000);
+  }
+}
+
+function commentary(text) {
+  if(tournamentCommentary) {
+    tournamentCommentary.textContent = text + "\n" + tournamentCommentary.textContent;
+  }
+}
+
+// ============ TEAM SETUP ============
+function setupTeams() {
+  teams = [];
+  let parts = mode.split('v'), numTeams = parts.length;
+  for(let t = 0; t < numTeams; t++) {
+    teams.push(createRandomTeam(parseInt(parts[t], 10) || 1));
+  }
+}
+
+function createRandomTeam(size) {
+  let team = [], pool = [...allCards];
+  let tops = pool.filter(c => ["secret", "mythic", "legendary", "special", "support"].includes(c.rarity));
+  
+  if(size > 0 && tops.length > 0) {
+    let top = tops[Math.floor(Math.random() * tops.length)];
+    team.push(JSON.parse(JSON.stringify(top)));
+    pool = pool.filter(c => c.name !== top.name);
+  }
+  
+  let need = size - team.length;
+  pool = shuffle(pool);
+  
+  for(let i = 0; i < need; i++) {
+    if(pool.length) {
+      team.push(JSON.parse(JSON.stringify(pool.shift())));
+    } else {
+      team.push(JSON.parse(JSON.stringify(allCards[Math.floor(Math.random() * allCards.length)])));
+    }
+  }
+  
+  return team;
+}
+
+// ============ RENDER TEAMS ============
+function renderTeams() {
+  let html = "";
+  teams.forEach((team, tIdx) => {
+    html += `<div class="team-column" aria-label="Team ${tIdx + 1}"><h3>Team ${tIdx + 1}</h3>`;
+    team.forEach((card, cIdx) => {
+      html += `<div class="team-card ${card.rarity}" id="team${tIdx}_card${cIdx}">` +
+        `<div class="pic">${card.pic ? `<img src="${card.pic}" alt="${card.display || card.name}" style="width:100%;height:100%;border-radius:13px;object-fit:cover;">` : `${(card.display || card.name)[0]}`}</div>` +
+        `<div class="card-info"><div class="title-rarity">` +
+        `<div class="card-title">${card.display || card.name}</div>` +
+        `<div class="rarity-label">${capitalize(card.rarity)}</div></div>` +
+        `<div class="right-info">` +
+        `<div>HP: <span id="hp_team${tIdx}_card${cIdx}">${teamsHp[tIdx] ? teamsHp[tIdx][cIdx] : card.hp}</span>/${card.hp}</div>` +
+        `<div>Atk: ${Math.round(card.attack * (["mythic", "legendary", "secret", "special"].includes(card.rarity) ? 1.2 : 1))}</div>` +
+        `<div>Moves: ${card.moves.length}</div></div></div><ul class="moves-list">` +
+        `${card.moves.map(m => 
+          `<li${m.name === "PASSIVE" ? " class='passive'" : ""}>${m.name === "PASSIVE" ? "PASSIVE: " : ""}${m.name !== "PASSIVE" ? m.name : ""} ${m.vfx} ${m.power ? `(${m.power})` : ""}${m.desc ? ` - ${m.desc}` : ""}</li>`
+        ).join('')}</ul></div>`;
+    });
+    html += "</div>";
+  });
+  teamsContainer.innerHTML = html;
+  html += `<div class="team-column tournament-large"> ... </div>`;
+}
+
+// ============ BATTLE LOOP (FIXED) ============
+async function battleLoop() {
+  let totalTeams = teams.length;
+  
+  // Initialize arrays properly
+  ultActivated = teams.map(team => new Array(team.length).fill(false));
+  regenTurns = teams.map(team => new Array(team.length).fill(0));
+  
+  let battleCount = 0;
+  const maxBattles = 100; // Prevent infinite loops
+  
+  while (!activeIdx.every((idx, t) => idx >= teams[t].length) && battleCount < maxBattles) {
+    battleCount++;
+    
+    for (let tn = 0; tn < totalTeams; tn++) {
+      let attackerTeam = tn, defenderTeam = (tn + 1) % totalTeams;
+      
+      if (activeIdx[attackerTeam] >= teams[attackerTeam].length || 
+          activeIdx[defenderTeam] >= teams[defenderTeam].length) continue;
+          
+      let attacker = teams[attackerTeam][activeIdx[attackerTeam]];
+      let defender = teams[defenderTeam][activeIdx[defenderTeam]];
+      
+      if (!attacker || !defender) continue;
+      
+      // Filter moves to get valid attack moves
+      let movesFiltered = attacker.moves.filter(m => 
+        m.name !== "PASSIVE" && 
+        m.name !== "All Attack Boost" && 
+        (m.power || 0) > 0
+      );
+      
+      // If no valid attack moves, use a default attack
+      if (movesFiltered.length === 0) {
+        movesFiltered = [{name: "Basic Attack", power: 50, vfx: "👊"}];
+      }
+      
+      let move = movesFiltered[Math.floor(Math.random() * movesFiltered.length)];
+      let baseDamage = move.power || 50;
+      let damage = baseDamage;
+      
+      if (["mythic", "legendary", "secret", "special"].includes(attacker.rarity)) {
+        damage = Math.round(baseDamage * 1.2);
+      }
+      if (attacker.rarity === "secret" && ultActivated[attackerTeam][activeIdx[attackerTeam]]) {
+        damage = Math.round(damage * 1.35);
+      }
+      
+      let boosted = damage > baseDamage;
+      
+      log(`${attacker.display} attacks ${defender.display} with ${move.name} ${move.vfx}${boosted ? " (boosted!)" : ""} for ${damage} damage!`);
+      
+      if (tournamentActive && damage > 200) {
+        commentary(`💥 MASSIVE HIT! ${attacker.display} deals ${damage} damage!`);
+      }
+      
+      triggerVFX(attackerTeam, activeIdx[attackerTeam], move.vfx + (boosted ? "💥" : ""), boosted);
+      
+      // Apply attack animation effect
+      if (move.effect) {
+        applyAttackEffect(attackerTeam, activeIdx[attackerTeam], move.effect);
+      }
+      
+      teamsHp[defenderTeam][activeIdx[defenderTeam]] -= damage;
+      if (teamsHp[defenderTeam][activeIdx[defenderTeam]] < 0) {
+        teamsHp[defenderTeam][activeIdx[defenderTeam]] = 0;
+      }
+      
+      updateHpDisplay();
+      
+      // Bounce animation
+      let cardEl = document.getElementById(`team${attackerTeam}_card${activeIdx[attackerTeam]}`);
+      if (cardEl) {
+        setTimeout(() => {
+          cardEl.classList.add("bounce");
+          setTimeout(() => cardEl.classList.remove("bounce"), 1200);
+        }, 800);
+      }
+      
+      await delay(600);
+      
+      if (teamsHp[defenderTeam][activeIdx[defenderTeam]] <= 0) {
+        log(`💀 ${defender.display} was defeated!`);
+        if (tournamentActive) {
+          commentary(`⚰️  ${defender.display} falls in battle!`);
+        }
+        activeIdx[defenderTeam]++;
+      }
+      
+      removeHighlight(attackerTeam, activeIdx[attackerTeam]);
+      removeHighlight(defenderTeam, activeIdx[defenderTeam]);
+      renderTeams();
+      await delay(200);
+      
+      // Check if battle should end
+      if (activeIdx.every((idx, t) => idx >= teams[t].length)) {
+        break;
+      }
+    }
+  }
+  
+  if (!tournamentActive) {
+    determineWinner();
+  }
+}
+
+// ============ VISUAL EFFECTS ============
+function applyAttackEffect(teamNum, cardIdx, effect) {
+  const cardEl = document.getElementById(`team${teamNum}_card${cardIdx}`);
+  if (!cardEl) return;
+  
+  cardEl.classList.remove("bounce", "flash", "slam", "spark");
+  
+  setTimeout(() => {
+    cardEl.classList.add(effect);
+    setTimeout(() => cardEl.classList.remove(effect), 1100);
+  }, 200);
+}
+
+function highlightCard(teamNum, cardIdx) {
+  const cardEl = document.getElementById(`team${teamNum}_card${cardIdx}`);
+  if (cardEl) cardEl.classList.add("active");
+}
+
+function removeHighlight(teamNum, cardIdx) {
+  const cardEl = document.getElementById(`team${teamNum}_card${cardIdx}`);
+  if (cardEl) cardEl.classList.remove("active");
+}
+
+function triggerVFX(teamNum, cardIdx, vfx, boosted) {
+  const cardEl = document.getElementById(`team${teamNum}_card${cardIdx}`);
+  if (!cardEl) return;
+  
+  const vfxDiv = document.createElement("div");
+  vfxDiv.className = "vfx" + (boosted ? " vfx-boost" : "");
+  vfxDiv.textContent = vfx;
+  cardEl.appendChild(vfxDiv);
+  
+  setTimeout(() => {
+    if (cardEl.contains(vfxDiv)) cardEl.removeChild(vfxDiv);
+  }, 850);
+}
+
+// ============ GAME STATE MANAGEMENT ============
+function updateHpDisplay() {
+  teams.forEach((team, tIdx) => {
+    team.forEach((card, cIdx) => {
+      const hpSpan = document.getElementById(`hp_team${tIdx}_card${cIdx}`);
+      if (hpSpan && teamsHp[tIdx] && teamsHp[tIdx][cIdx] !== undefined) {
+        hpSpan.textContent = teamsHp[tIdx][cIdx];
+      }
+    });
+  });
+}
+
+function log(text) {
+  const time = new Date().toLocaleTimeString();
+  logDiv.textContent = `[${time}] ${text}\n` + logDiv.textContent;
+}
+
+function determineWinner() {
+  const totals = teamsHp.map(teamHp => teamHp.reduce((sum, hp) => sum + Math.max(0, hp), 0));
+  const maxHP = Math.max(...totals);
+  const winners = totals.map((v, i) => v === maxHP ? i + 1 : null).filter(v => v !== null);
+  
+  let txt;
+  if (winners.length === teams.length) {
+    txt = "It's a draw between all teams!";
+  } else if (winners.length > 1) {
+    txt = `It's a draw between teams ${winners.join(", ")}!`;
+  } else {
+    txt = `Team ${winners[0]} wins!`;
+    leaderData[`Team ${winners[0]}`] = (leaderData[`Team ${winners[0]}`] || 0) + 1;
+    updateLeaderboard();
+  }
+  
+  winnerDiv.textContent = txt;
+  playAgainBtn.style.display = "inline-block";
+}
+
+function updateLeaderboard() {
+  let html = Object.entries(leaderData)
+    .sort((a, b) => b[1] - a[1])
+    .map(([team, count], i) => 
+      `<div style="font-weight:bold;color:${i === 0 ? 'gold' : '#bdeaff'}">${team}: ${count} win${count > 1 ? 's' : ''}</div>`
+    ).join('');
+  
+  leaderboardDiv.innerHTML = `<div style="font-size:1.13em;font-weight:700;margin-bottom:10px;color:#99e9ff;">Classic Leaderboard</div>${html}`;
+}
+
+function updateTournamentLeaderboard() {
+  if (!tournamentLeaderboard) return;
+  
+  let html = tournamentLeaders.slice(0, 10)
+    .map((winner, i) => 
+      `<div style="font-weight:bold;color:${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? '#cd7f32' : '#bdeaff'};margin:2px 0;">` +
+      `🏆 ${winner.name} (${winner.type})</div>`
+    ).join('');
+  
+  tournamentLeaderboard.innerHTML = `<div style="font-size:1.13em;font-weight:700;margin-bottom:10px;color:#99e9ff;">🏆 Tournament Champions</div>${html}`;
+}
+
+// Initialize leaderboards
+updateLeaderboard();
+updateTournamentLeaderboard();
+ // ================== ACHIEVEMENTS SYSTEM ==================
+const achievements = [
+  {
+    key: "first_win",
+    name: "First Victory",
+    desc: "Win your first match.",
+    check: () => (leaderData && Object.values(leaderData).some(v=>v>0) || tournamentLeaders.length>0)
+  },
+  {
+    key: "epic_comeback",
+    name: "Epic Comeback",
+    desc: "Win a match with only one card remaining and less than 60 HP.",
+    check: () => lastWinData && lastWinData.comeback
+  },
+  {
+    key: "legendary_champion",
+    name: "Legendary Champion",
+    desc: "Win a tournament with a legendary, mythic or secret card on your team.",
+    check: () => tournamentLeaders.length > 0 && (
+      ["legendary","mythic","secret"].some(rarity=>
+        tournamentLeaders[0]?.name.toLowerCase().includes(rarity)
+      )
+    )
+  },
+  {
+    key: "battle_master",
+    name: "Battle Master",
+    desc: "Play 100 matches.",
+    check: () => getLocal("matches_played",0) >= 100
+  },
+  {
+    key: "tournament_winner",
+    name: "Tournament Winner",
+    desc: "Win any tournament.",
+    check: () => tournamentLeaders.length > 0
+  },
+  {
+  key: "first_win",
+  name: "First Victory",
+  desc: "Win your first match.",
+  check: () => Object.values(leaderData).some(v => v > 0) || tournamentLeaders.length > 0
+},
+{
+  key: "tournament_winner",
+  name: "Tournament Champion",
+  desc: "Win any tournament.",
+  check: () => tournamentLeaders.length > 0
+},
+{
+  key: "battle_veteran",
+  name: "Battle Veteran",
+  desc: "Play 50 matches.",
+  check: () => getLocal("matches_played", 0) >= 50
+},
+{
+  key: "collection_starter",
+  name: "Card Collector",
+  desc: "Unlock 10 cards in your collection.",
+  check: () => getCollection().length >= 10
+},
+{
+  key: "collection_half",
+  name: "Halfway There",
+  desc: "Unlock 50% of all cards.",
+  check: () => getCollection().length >= Math.floor(allCards.length / 2)
+},
+{
+  key: "collection_master",
+  name: "Collection Master",
+  desc: "Unlock 90% of all cards.",
+  check: () => getCollection().length >= Math.floor(allCards.length * 0.9)
+},
+{
+  key: "full_collection",
+  name: "Completionist",
+  desc: "Unlock every single card.",
+  check: () => getCollection().length === allCards.length
+},
+{
+  key: "classic_champion",
+  name: "Classic Champion",
+  desc: "Win 10 classic matches.",
+  check: () => Object.values(leaderData).reduce((sum, wins) => sum + wins, 0) >= 10
+},
+{
+  key: "dedicated_player",
+  name: "Dedicated Player",
+  desc: "Play 100 matches total.",
+  check: () => getLocal("matches_played", 0) >= 100
+},
+{
+  key: "tournament_veteran",
+  name: "Tournament Veteran",
+  desc: "Win 3 tournaments.",
+  check: () => tournamentLeaders.length >= 3
+},
+{
+  key: "perfect_team",
+  name: "Perfect Team",
+  desc: "Win a match with all teammates having full HP at the end.",
+  check: () => winners.length === 1 && teamsHp[winners[0] - 1].every((hp, i) => hp === teams[winners[0] - 1][i].hp)
+},
+{
+  key: "no_revives_used",
+  name: "Iron Will",
+  desc: "Win a tournament without any revives.",
+  check: () => tournamentLeaders.length > 0 && lastWinData.revivesUsed === 0
+},
+{
+  key: "swift_conqueror",
+  name: "Swift Conqueror",
+  desc: "Complete a tournament in under 15 matches.",
+  check: () => lastWinData.totalMatches && lastWinData.totalMatches < 15
+},
+{
+  key: "diversity_master",
+  name: "Diversity Master",
+  desc: "Win matches with at least five different card rarities.",
+  check: () => {
+    const uniqueRarities = new Set(teams.flat().map(card => card.rarity));
+    return uniqueRarities.size >= 5 && Object.values(leaderData).length > 0;
+  }
+},
+{
+  key: "counter_strike",
+  name: "Counter Strike",
+  desc: "Win a match by dealing the final blow with a counter-attack.",
+  check: () => lastWinData.finalMove && lastWinData.finalMove.effect === "counter"
+},
+{
+  key: "lucky_evader",
+  name: "Lucky Evader",
+  desc: "Win a match having dodged every attack at least once.",
+  check: () => lastWinData.evadeCount >= teams.flat().length
+},
+{
+  key: "all_ultimate_slayer",
+  name: "All Ultimate Slayer",
+  desc: "Defeat three opponents using ultimate moves in a single match.",
+  check: () => lastWinData.ultimatesUsed >= 3
+},
+{
+  key: "come_back_kid",
+  name: "Comeback Kid",
+  desc: "Win a match after falling behind with less than 30% HP.",
+  check: () => lastWinData.comeback && Math.min(...teamsHp[winners[0] - 1]) < (teams[winners[0] - 1][0].hp * 0.3)
+},
+{
+  key: "ultimate_ruler",
+  name: "Ultimate Ruler",
+  desc: "Win a tournament with a team consisting only of secret, mythic, and legendary cards—no repeats.",
+  check: () => {
+    if (tournamentLeaders.length === 0) return false;
+    const team = teams[winners[0] - 1];
+    return team.every(card =>
+      ["secret", "mythic", "legendary"].includes(card.rarity)
+    ) && new Set(team.map(card=>card.name)).size === team.length;
+  }
+},
+
+{
+  key: "unstoppable_force",
+  name: "Unstoppable Force",
+  desc: "Defeat every opponent in a tournament without losing a single card or taking any damage.",
+  check: () => lastWinData && lastWinData.flawless && winners.length === 1
+},
+{
+  key: "grand_combo",
+  name: "Grand Combo",
+  desc: "Perform a five-skill chain combo in a single turn with at least three different cards.",
+  check: () => lastWinData && lastWinData.comboChain && lastWinData.comboChain >= 5
+},
+{
+  key: "miracle_turnaround",
+  name: "Miracle Turnaround",
+  desc: "Win a match starting with every card below 30% HP and finish with all cards at 90% HP or higher.",
+  check: () => lastWinData && lastWinData.startLowHp && lastWinData.endHighHp
+},
+{
+  key: "fate_changer",
+  name: "Fate Changer",
+  desc: "Reverse defeat in the final round by reviving all defeated team members and winning.",
+  check: () => lastWinData && lastWinData.finalReviveWin
+},
+{
+  key: "immortal_legends",
+  name: "Immortal Legends",
+  desc: "Win 5 tournaments in a row using at least one mythic card in every team.",
+  check: () => tournamentLeaders.length >= 5 && tournamentLeaders.slice(0,5).every(lead => lead.cards.some(card => card.rarity === "mythic"))
+},
+
+{
+  key: "multi_boss_slayer",
+  name: "Multi Boss Slayer",
+  desc: "Defeat three different island or special boss cards in a single tournament.",
+  check: () => lastWinData && lastWinData.bossesDefeated && lastWinData.bossesDefeated.length >= 3
+},
+
+{
+  key: "supreme_synergy",
+  name: "Supreme Synergy",
+  desc: "Finish a match with every card on your team triggering their passive in the same turn.",
+  check: () => lastWinData && lastWinData.turnPassiveTrigger && lastWinData.turnPassiveTrigger === teams.flat().length
+},
+
+{
+  key: "elemental_mastery",
+  name: "Elemental Mastery",
+  desc: "Win matches with a team using fire, water, wind, and earth themed epic cards—no repeats.",
+  check: () => {
+    const team = teams[winners[0]-1];
+    const elements = ["fire","water","wind","earth"];
+    return team.filter(card => elements.some(e => card.name.toLowerCase().includes(e))).length >= 4 && new Set(team.map(card=>card.name)).size === team.length;
+  }
+},
+
+{
+  key: "true_luck",
+  name: "True Luck",
+  desc: "Win a match with all attacks landing as critical hits and all enemy attacks missed/dodged.",
+  check: () => lastWinData && lastWinData.allCrits && lastWinData.allEvades
+},
+
+{
+  key: "unbreakable_chain",
+  name: "Unbreakable Chain",
+  desc: "Win five consecutive tournaments, never using the same card twice in any winning team.",
+  check: () => {
+    if (tournamentLeaders.length < 5) return false;
+    const used = new Set();
+    for (let i = 0; i < 5; i++) {
+      for (const card of tournamentLeaders[i].cards) {
+        const id = card.id || card.name;
+        if (used.has(id)) return false;
+        used.add(id);
+      }
+    }
+    return true;
+  }
+}
+
+  // -- add more achievement definitions here
+  
+];
+
+function getLocal(key, def) {
+  try { return JSON.parse(localStorage.getItem("animecard_"+key)) ?? def; } catch { return def; }
+}
+function setLocal(key, val) {
+  localStorage.setItem("animecard_"+key, JSON.stringify(val));
+}
+
+// State variables
+let unlockedAchievements = getLocal("achievements", []);
+let lastWinData = {};
+
+// Show popup on achievement unlock
+function showAchievementPopup(ach) {
+  const popup = document.getElementById("achievement-popup");
+  if (!popup) return;
+  popup.innerHTML = `🏅 <b>${ach.name}</b><br><span style="font-size:0.82em;">${ach.desc}</span>`;
+  popup.style.opacity = "1";
+  popup.style.display = "flex";
+  setTimeout(() => { popup.style.opacity = "0"; }, 2300);
+  setTimeout(() => { popup.style.display = "none"; }, 2900);
+}
+
+// Test for unlocking
+function checkAchievements() {
+  let changed = false;
+  achievements.forEach(ach => {
+    if (!unlockedAchievements.includes(ach.key) && ach.check()) {
+      unlockedAchievements.push(ach.key);
+      setLocal("achievements", unlockedAchievements);
+      showAchievementPopup(ach);
+      changed = true;
+    }
+  });
+  if (changed) refreshAchievementsList();
+}
+
+// Display central panel
+function refreshAchievementsList() {
+  const ul = document.getElementById("achievements-ul");
+  if (!ul) return;
+  ul.innerHTML = achievements.map(ach =>
+    `<li class="${unlockedAchievements.includes(ach.key) ? 'achieved' : 'locked'}">` +
+    (unlockedAchievements.includes(ach.key) ? "✅ " : "🔒 ") +
+    `<b>${ach.name}</b><br><span style="font-size:0.84em;">${ach.desc}</span></li>`
+  ).join("");
+}
+
+// =========== Modify WIN/LEADER UPDATE ===========
+// Track last win for comeback etc.
+function determineWinner() {
+  const totals = teamsHp.map(teamHp => teamHp.reduce((sum, hp) => sum + Math.max(0, hp), 0));
+  const maxHP = Math.max(...totals);
+  const winners = totals.map((v, i) => v === maxHP ? i + 1 : null).filter(v => v !== null);
+  let txt;
+
+  // Epic comeback logic: single survivor with < 60 HP wins match
+  lastWinData.comeback = false;
+  if (winners.length === 1) {
+    const wIdx = winners[0] - 1;
+    if (teams[wIdx].filter((_,idx)=>teamsHp[wIdx][idx]>0).length === 1 &&
+        Math.min(...teamsHp[wIdx].filter(hp=>hp>0)) < 60) {
+      lastWinData.comeback = true;
+    }
+  }
+
+  if (winners.length === teams.length) {
+    txt = "It's a draw between all teams!";
+  } else if (winners.length > 1) {
+    txt = `It's a draw between teams ${winners.join(", ")}!`;
+  } else {
+    txt = `Team ${winners[0]} wins!`;
+    leaderData[`Team ${winners[0]}`] = (leaderData[`Team ${winners[0]}`] || 0) + 1;
+    setLocal("matches_played", getLocal("matches_played",0)+1);
+    updateLeaderboard();
+  }
+  winnerDiv.textContent = txt;
+  playAgainBtn.style.display = "inline-block";
+  setTimeout(checkAchievements, 500);
+}
+
+// Also patch tournament winner add:
+function updateTournamentLeaderboard() {
+  if (!tournamentLeaderboard) return;
+  let html = tournamentLeaders.slice(0, 10)
+    .map((winner, i) => `<div style="font-weight:bold;color:${i===0?'gold':i===1?'silver':i===2?'#cd7f32':'#bdeaff'};margin:2px 0;">🏆 ${winner.name} (${winner.type})</div>`)
+    .join('');
+  tournamentLeaderboard.innerHTML = `<div style="font-size:1.13em;font-weight:700;margin-bottom:10px;color:#99e9ff;">🏆 Tournament Champions</div>${html}`;
+  setLocal("matches_played", getLocal("matches_played",0)+1);
+  setTimeout(checkAchievements, 500);
+}
+
+// On startup—show achievements panel
+refreshAchievementsList();
+setTimeout(checkAchievements, 1000);
+// ================== CARD COLLECTION SYSTEM ==================
+// Mark the discovered collection in localStorage for persistence
+function getCollection() {
+  return getLocal("card_collection", []);
+}
+function setCollection(val) {
+  setLocal("card_collection", val);
+}
+
+// Helper: Add card to collection by key (use name as key)
+function unlockCard(card) {
+  const collection = getCollection();
+  if(!collection.includes(card.name)) {
+    collection.push(card.name);
+    setCollection(collection);
+    refreshCollectionList();
+  }
+}
+
+// Auto-unlock all cards in both teams after a match, and battle opponents
+function markPlayedCards() {
+  teams.flat().forEach(card => unlockCard(card));
+}
+
+// UI: Show all cards and locked
+function refreshCollectionList() {
+  const container = document.getElementById("collection-list");
+  if (!container) return;
+  const collection = getCollection();
+  let html = "";
+  let unlocked = 0;
+  allCards.forEach(card => {
+    const locked = !collection.includes(card.name);
+    if (!locked) unlocked++;
+    html += `<div class="collection-card${locked ? ' locked' : ''}" title="${card.display||card.name}">
+      <div class="card-symbol">${card.pic ? `<img src="${card.pic}" width="40" height="40" style="border-radius:8px;">` : (card.display||card.name)[0]}</div>
+      <div class="card-title">${locked ? "???" : (card.display||card.name)}</div>
+      <div class="card-rarity">${locked ? "" : capitalize(card.rarity)}</div>
+    </div>`;
+  });
+  container.innerHTML = html;
+  const progress = document.getElementById("collection-progress");
+  if(progress) progress.textContent = `${unlocked}/${allCards.length} (${Math.round(100*unlocked/allCards.length)}%)`;
+}
+
+// Integrate with game: After every match or tournament battle, record played cards
+// Patch into battle/tournament logic
+const _oldDetermineWinner = determineWinner;
+determineWinner = function(...args) {
+  // Mark all cards from both teams as discovered
+  markPlayedCards();
+  if(_oldDetermineWinner) _oldDetermineWinner.apply(this, args);
+  setTimeout(refreshCollectionList, 200); // UI update
+}
+
+// Patch into tournament system to capture during tourneys too:
+const _oldRunTournamentRound = runTournamentRound;
+runTournamentRound = async function(type,...args) {
+  // Unlock all cards in every tournament round (both sides)
+  if (typeof tournamentBracket !== "undefined" && Array.isArray(tournamentBracket)) {
+    tournamentBracket.forEach(obj=>{
+      if(obj.card) unlockCard(obj.card);
+      if(obj.cards) obj.cards.forEach(unlockCard);
+    });
+    setTimeout(refreshCollectionList, 200);
+  }
+  return await _oldRunTournamentRound.apply(this,[type,...args]);
+}
+
+// Show on startup
+refreshCollectionList();
+  const rarityColors = {
+  // ...
+  shadow: "#343344", // or a dark purple/indigo/black-tint
+};
+
+</script>
+</body>
+</html>
