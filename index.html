@@ -203,8 +203,7 @@ select:hover, .btn:hover { background: #5a5dbf; }
 }
 
 // Usage: Announce something new
-announce("New:Rimuru Temepest secret form added! Check your collection! which is in true dragon form with 7 skills" );
-
+announce("New:Rimuru Temepest secret form added! Check your collection! which is in true dragon form with 8 skills as well Son goku have 8 moves" );
 // ============ FULL CARD DATA (ALL ANIME/MANHWA) ============
 const allCards = [
   // SECRET CARDS
@@ -220,6 +219,7 @@ const allCards = [
     { name: "Limitless Spirit Pulse", power: 470, vfx: "", effect: "flash", desc: "Spirit blast heals self 30% HP" },
     { name: "Final Form: Mastered Ultra Instinct", power: 600, vfx: "", effect: "flash", desc: "Absolute offense/defense, guaranteed crit, cannot be countered" },
     { name: "Transcendent Ultra Instinct Barrage", power: 655, vfx: "", effect: "multi-flash", desc: "A flurry of unstoppable blows—it strikes 3 times, each attack is guaranteed crit and bypasses shields." },
+    { name : "barrage boost", power: 0, vfx: "💥", desc: "Increases power of 'Transcendent Ultra Instinct Barrage' by 25% this turn." },
     { name: "PASSIVE", power: 0, vfx: "", desc: "Divine Reflex: 35% chance to ignore ALL incoming damage" },
     { name: "PASSIVE", power: 0, vfx: "", desc: "Transcendent Warrior: Recovers 10% HP on every defeat of an enemy" }
   ],
@@ -238,11 +238,13 @@ moves: [
   { name: "Infinity Storm", power: 700, vfx: "", effect: "storm", desc: "Deals triple damage next turn and heals Rimuru 270 HP; cannot be evaded or countered." },
   { name: "Ultimate Predator", power: 0, vfx: "", effect: "", desc: "Copies and uses any enemy skill once per battle (activates automatically when attacked)." },
   { name: "Stellar Domination", power: 660, vfx: "", effect: "flash", desc: "Crushes all enemy shields, deals extra 70 true damage to debuffed foes, and stuns one random enemy." },
-  { name: "PASSIVE: God Emperor", power: 0, vfx: "", desc: "Rimuru heals 120 HP every turn, cannot be one-hit KO'd except by another Secret, and gains 40 attack every time any enemy uses a skill." }
+  { name: "PASSIVE: God Emperor", power: 0, vfx: "", desc: "Rimuru heals 120 HP every turn, cannot be one-hit KO'd except by another Secret, and gains 40 attack every time any enemy uses a skill." },
+  { name: "PASSIVE: True Dragon Ascendance", power: 0, vfx: "", desc: "When Rimuru's HP drops below 40%, he automatically transforms into Ultimate True Dragon God form, fully heals, and gains +250 to all stats for the rest of the battle. This can only occur once per match." }
 ],
 hp: 2600,
 attack: 755
 },
+
 
 
  {
@@ -1838,4 +1840,5 @@ refreshCollectionList();
 </script>
 </body>
 </html>
+
 
