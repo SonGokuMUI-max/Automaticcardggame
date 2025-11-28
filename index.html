@@ -203,7 +203,7 @@ select:hover, .btn:hover { background: #5a5dbf; }
 }
 
 // Usage: Announce something new
-announce("New:Rimuru Temepest secret form added! Check your collection! which is in true dragon form with 8 skills as well Son goku have 8 moves" );
+announce("New:Celestial shindra Mythic form added! Check your collection! And 10+ card will be added soon" );
 // ============ FULL CARD DATA (ALL ANIME/MANHWA) ============
 const allCards = [
   // SECRET CARDS
@@ -380,6 +380,28 @@ attack: 755
 
 // --- Add to ALLCARDS array in your JS ---
 // MYTHIC CARDS
+  {
+  name: "Celestial Shinra",
+  display: "Celestial Shinra (Fate Requiem)",
+  rarity: "mythic",
+  moves: [
+    { 
+      name: "Stellar Retribution", power: 480, vfx: "✨⚡", desc: "Unleash celestial energy—hits two random enemies and ignores defense."},
+    { 
+      name: "Rewrite Destiny",power: 250, vfx: "🌌🔄", desc: "Once per match, cleanse all negative effects from allies and swap buffs/debuffs across teams."},
+    { 
+      name: "Astral Cataclysm", power: 540, vfx: "☄️💥",desc: "Deal heavy damage to all foes; enemies with higher HP are stunned for 1 round."}, 
+    { 
+      name: "Fate's Edge", power: 420, vfx: "🗡️✨", desc: "Deals bonus damage if enemy has buffs; 35% chance to remove a positive effect."},
+    
+    { 
+      name: "PASSIVE", power: 0, vfx: "🔮",  desc: "Immune to debuffs; revives at 1 HP once per match, healing all allies for 55 HP."}
+    
+  ],
+  hp: 1600,
+  attack: 350
+},
+
 {
 name: "Rimuru Tempest",
 display: "Rimuru Tempest (demon lord)",
@@ -1840,5 +1862,6 @@ refreshCollectionList();
 </script>
 </body>
 </html>
+
 
 
